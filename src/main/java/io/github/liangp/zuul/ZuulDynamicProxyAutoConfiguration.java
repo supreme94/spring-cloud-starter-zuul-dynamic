@@ -14,25 +14,65 @@
  * limitations under the License.
  */
 
-package io.github.liangp.zuul.dynamicroute.configuration;
+package io.github.liangp.zuul;
 
-import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnClass;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
+import org.springframework.boot.autoconfigure.web.ServerProperties;
+import org.springframework.boot.context.properties.EnableConfigurationProperties;
+import org.springframework.cloud.client.discovery.DiscoveryClient;
+import org.springframework.cloud.netflix.zuul.filters.RouteLocator;
+import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
+import org.springframework.cloud.netflix.zuul.filters.discovery.DiscoveryClientRouteLocator;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.connection.RedisConnectionFactory;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcOperations;
 
+import io.github.liangp.zuul.dynamicroute.routelocator.StoreRefreshableRouteLocator;
 import io.github.liangp.zuul.dynamicroute.store.JdbcZuulRouteStore;
 import io.github.liangp.zuul.dynamicroute.store.ZuulRouteStore;
+import io.github.liangp.zuul.ratelimit.RateLimitProperties;
+import io.github.liangp.zuul.ratelimit.filters.RateLimitFilter;
+import io.github.liangp.zuul.ratelimit.limiter.RateLimiter;
+import io.github.liangp.zuul.ratelimit.limiter.redis.RedisRateLimiter;
 
 @Configuration
-@ConditionalOnProperty(value = "zuul.store.jdbc.enabled", havingValue = "true", matchIfMissing = false)
+@EnableConfigurationProperties(RateLimitProperties.class)
 public class ZuulDynamicProxyAutoConfiguration {
-	
+
 	@Bean
-	@ConditionalOnMissingBean
+	@ConditionalOnProperty(value = "zuul.store.jdbc.enabled", havingValue = "true", matchIfMissing = false)
 	public ZuulRouteStore mysqlZuulRouteStore(JdbcOperations jdbcOperations) {
 		return new JdbcZuulRouteStore(jdbcOperations);
 	}
-	
+
+	@Bean
+	@ConditionalOnProperty(value = "zuul.store.jdbc.enabled", havingValue = "true", matchIfMissing = false)
+	public DiscoveryClientRouteLocator discoveryRouteLocator(ZuulRouteStore zuulRouteStore,DiscoveryClient discovery,ZuulProperties zuulProperties,ServerProperties server) {
+		return new StoreRefreshableRouteLocator(server.getServletPath(), discovery, zuulProperties, zuulRouteStore);
+	}
+
+	@Bean
+	@ConditionalOnProperty(prefix = RateLimitProperties.PREFIX, name = "enabled", havingValue = "true")
+	public RateLimitFilter rateLimiterFilter(RateLimiter rateLimiter, RateLimitProperties rateLimitProperties,
+			RouteLocator routeLocator) {
+		return new RateLimitFilter(rateLimiter, rateLimitProperties, routeLocator);
+	}
+
+	@ConditionalOnClass(RedisTemplate.class)
+	public static class RedisConfiguration {
+		@Bean
+		public StringRedisTemplate redisTemplate(RedisConnectionFactory cf) {
+			return new StringRedisTemplate(cf);
+		}
+
+		@Bean
+		public RateLimiter redisRateLimiter(RedisTemplate redisTemplate) {
+			return new RedisRateLimiter(redisTemplate);
+		}
+	}
+
 }
