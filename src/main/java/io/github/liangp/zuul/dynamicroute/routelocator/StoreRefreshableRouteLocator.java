@@ -56,7 +56,7 @@ public class StoreRefreshableRouteLocator extends DiscoveryClientRouteLocator {
   protected LinkedHashMap<String, ZuulProperties.ZuulRoute> locateRoutes() {
     LinkedHashMap<String, ZuulProperties.ZuulRoute> routesMap = new LinkedHashMap<>();
     routesMap.putAll(super.locateRoutes());
-    for (ZuulProperties.ZuulRoute route : store.findAll()) {
+    for (ZuulProperties.ZuulRoute route : store.getRoutes()) {
       routesMap.put(route.getPath(), route);
     }
     return routesMap;

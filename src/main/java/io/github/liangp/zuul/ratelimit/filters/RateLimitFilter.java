@@ -1,7 +1,6 @@
 package io.github.liangp.zuul.ratelimit.filters;
 
 
-import java.util.List;
 import java.util.Optional;
 
 import javax.servlet.http.HttpServletRequest;
@@ -21,9 +20,6 @@ import io.github.liangp.zuul.ratelimit.RateLimitProperties.Policy.Type;
 import io.github.liangp.zuul.ratelimit.limiter.RateLimiter;
 import lombok.AllArgsConstructor;
 
-/**
- * @author liangp
- */
 @AllArgsConstructor
 public class RateLimitFilter extends ZuulFilter {
 
@@ -87,20 +83,20 @@ public class RateLimitFilter extends ZuulFilter {
         return this.routeLocator.getMatchingRoute(this.requestURI());
     }
 
-    private io.github.liangp.zuul.ratelimit.RateLimitProperties.Policy policy() {
+    private RateLimitProperties.Policy policy() {
         return (route() != null) ? this.properties.getPolicies().get(route().getId()) : null;
     }
 
-    private String key(final HttpServletRequest request, final List<Type> types) {
+    private String key(final HttpServletRequest request, final Type type) {
         final Route route = route();
         final StringBuilder builder = new StringBuilder(route.getId());
-        if (types.contains(Type.URL)) {
+        if (type == Type.URL) {
             builder.append(":").append(route.getPath());
         }
-        if (types.contains(Type.ORIGIN)) {
+        if (type == Type.ORIGIN) {
             builder.append(":").append(getRemoteAddr(request));
         }
-        if (types.contains(Type.USER)) {
+        if (type == Type.USER) {
             builder.append(":").append((request.getUserPrincipal() != null) ? request.getUserPrincipal().getName() :
                     ANONYMOUS);
         }

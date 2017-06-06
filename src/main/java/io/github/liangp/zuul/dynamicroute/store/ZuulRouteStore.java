@@ -33,5 +33,5 @@ public interface ZuulRouteStore {
    *
    * @return the list of zuul routes
    */
-  List<ZuulProperties.ZuulRoute> findAll();
+  List<ZuulProperties.ZuulRoute> getRoutes();
 }

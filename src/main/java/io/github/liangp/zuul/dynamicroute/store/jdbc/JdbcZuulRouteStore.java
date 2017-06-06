@@ -14,9 +14,11 @@
  * limitations under the License.
  */
 
-package io.github.liangp.zuul.dynamicroute.store;
+package io.github.liangp.zuul.dynamicroute.store.jdbc;
 
 import com.google.common.collect.Sets;
+
+import io.github.liangp.zuul.dynamicroute.store.ZuulRouteStore;
 
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cloud.netflix.zuul.filters.ZuulProperties;
@@ -79,7 +81,7 @@ public class JdbcZuulRouteStore implements ZuulRouteStore {
   }
 
   @Override
-  public List<ZuulProperties.ZuulRoute> findAll() {
+  public List<ZuulProperties.ZuulRoute> getRoutes() {
     final String sql = "select * from " + table;
     return jdbcOperations.query(sql, ZUUL_ROUTE_MAPPER);
   }

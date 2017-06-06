@@ -1,8 +1,6 @@
 package io.github.liangp.zuul.ratelimit;
 
-import java.util.ArrayList;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 
 import org.springframework.boot.context.properties.ConfigurationProperties;
@@ -27,7 +25,7 @@ public class RateLimitProperties {
     public static class Policy {
         private Long refreshInterval = 60L;
         private Long limit;
-        private List<Type> type = new ArrayList<>();
+        private Type type;
 
         public enum Type {
             ORIGIN, USER, URL

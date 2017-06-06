@@ -32,8 +32,8 @@ import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.jdbc.core.JdbcOperations;
 
 import io.github.liangp.zuul.dynamicroute.routelocator.StoreRefreshableRouteLocator;
-import io.github.liangp.zuul.dynamicroute.store.JdbcZuulRouteStore;
 import io.github.liangp.zuul.dynamicroute.store.ZuulRouteStore;
+import io.github.liangp.zuul.dynamicroute.store.jdbc.JdbcZuulRouteStore;
 import io.github.liangp.zuul.ratelimit.RateLimitProperties;
 import io.github.liangp.zuul.ratelimit.filters.RateLimitFilter;
 import io.github.liangp.zuul.ratelimit.limiter.RateLimiter;
